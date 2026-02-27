@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"sync"
+)
 
 func groupAnagrams(strs []string) [][]string {
 	anagramMap := make(map[string][]string)
@@ -34,6 +37,7 @@ func main() {
 	strs := []string{"eat", "tea", "tan", "ate", "nat", "bat"}
 	fmt.Println(groupAnagrams(strs))
 	fmt.Println(topKFrequent([]int{1, 1, 1, 2, 2, 4, 5, 4, 4, 6, 5, 5, 1, 3}, 3))
+	fmt.Println(productExceptSelf([]int{1, 2, 3, 4}))
 }
 
 func topKFrequent(nums []int, k int) []int {
@@ -57,4 +61,36 @@ func topKFrequent(nums []int, k int) []int {
 		}
 	}
 	return result
+}
+
+func productExceptSelf(nums []int) []int {
+	n := len(nums)
+	left := make([]int, n)
+	right := make([]int, n)
+	var wg *sync.WaitGroup
+	wg = new(sync.WaitGroup)
+	wg.Add(2)
+	go func() {
+		wg.Done()
+		left[0] = 1
+		for i := 1; i < n; i++ {
+			left[i] = left[i-1] * nums[i-1]
+		}
+	}()
+
+	go func() {
+		wg.Done()
+		right[n-1] = 1
+		for i := n - 2; i >= 0; i-- {
+			right[i] = right[i+1] * nums[i+1]
+		}
+	}()
+
+	wg.Wait()
+	result := make([]int, n)
+	for i := 0; i < n; i++ {
+		result[i] = left[i] * right[i]
+	}
+	return result
+
 }
