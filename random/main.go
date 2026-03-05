@@ -1,6 +1,7 @@
 package main
 
 import (
+	"container/heap"
 	"fmt"
 	"sync"
 )
@@ -38,6 +39,7 @@ func main() {
 	fmt.Println(groupAnagrams(strs))
 	fmt.Println(topKFrequent([]int{1, 1, 1, 2, 2, 4, 5, 4, 4, 6, 5, 5, 1, 3}, 3))
 	fmt.Println(productExceptSelf([]int{1, 2, 3, 4}))
+	fmt.Println(FindKthLargest([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, 3))
 }
 
 func topKFrequent(nums []int, k int) []int {
@@ -93,4 +95,44 @@ func productExceptSelf(nums []int) []int {
 	}
 	return result
 
+}
+
+// Kth largest element in an array with O(n log k) time complexity and O(k) space complexity (using a min-heap)
+
+type MinHeap []int
+
+func (h MinHeap) Len() int {
+	return len(h)
+}
+
+func (h MinHeap) Less(i, j int) bool {
+	return h[i] < h[j]
+}
+
+func (h MinHeap) Swap(i, j int) {
+	h[i], h[j] = h[j], h[i]
+}
+
+func (h *MinHeap) Push(x interface{}) {
+	*h = append(*h, x.(int))
+}
+
+func (h *MinHeap) Pop() interface{} {
+	old := *h
+	n := len(old)
+	x := old[n-1]
+	*h = old[0 : n-1]
+	return x
+}
+
+func FindKthLargest(nums []int, k int) int {
+	v := MinHeap{}
+	heap.Init(&v)
+	for _, num := range nums {
+		heap.Push(&v, num)
+		if v.Len() > k {
+			heap.Pop(&v)
+		}
+	}
+	return heap.Pop(&v).(int)
 }
